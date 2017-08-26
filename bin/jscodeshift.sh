@@ -20,10 +20,11 @@ const opts = require('nomnom')
   .options({
     path: {
       position: 0,
-      help: 'Files or directory to transform',
+      help: 'Files or directory to transform (can be passed in stdin)',
       list: true,
       metavar: 'FILE',
-      required: true
+      required: process.stdin.isTTY, // only required when stdin is not redirected
+      default: []
     },
     transform: {
       abbr: 't',
@@ -107,8 +108,27 @@ const opts = require('nomnom')
   })
   .parse();
 
-Runner.run(
-  /^https?/.test(opts.transform) ? opts.transform : path.resolve(opts.transform), 
-  opts.path,
-  opts
-);
+if (!process.stdin.isTTY) {
+    // get standard input in text form
+    process.stdin.setEncoding('utf8');
+
+    const stdin = [];
+    process.stdin.on('data', chunk => {
+      stdin.push(chunk)
+    });
+
+    process.stdin.on('end', () => {
+      const filteredInPath = stdin.join('').split('\n').filter(path => path.length);
+      run(opts, [...filteredInPath, ...opts.path]);
+    });
+} else {
+    run(opts, opts.path);
+}
+
+function run(opts, paths) {
+  Runner.run(
+    /^https?/.test(opts.transform) ? opts.transform : path.resolve(opts.transform),
+    paths,
+    opts
+  );
+}
