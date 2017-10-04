@@ -146,6 +146,9 @@ function run(data) {
           if (options.print) {
             console.log(out); // eslint-disable-line no-console
           }
+          if (options.json) {
+            notify({action: 'json', file, out});
+          }
           if (!options.dry) {
             writeFileAtomic(file, out, function(err) {
               if (err) {

@@ -139,6 +139,7 @@ function run(transformFile, paths, options) {
   const extensions =
     options.extensions && options.extensions.split(',').map(ext => '.' + ext);
   const fileCounters = {error: 0, ok: 0, nochange: 0, skip: 0};
+  const transformResults = []
   const statsCounter = {};
   const startTime = process.hrtime();
 
@@ -241,6 +242,9 @@ function run(transformFile, paths, options) {
                 fileCounters[message.status] += 1;
                 log[message.status](lineBreak(message.msg), options.verbose);
                 break;
+              case 'json':
+                transformResults.push({file: message.file, out: message.out});
+                break;
               case 'update':
                 if (!statsCounter[message.name]) {
                   statsCounter[message.name] = 0;
@@ -266,6 +270,9 @@ function run(transformFile, paths, options) {
             process.stderr.write(
               'Time elapsed: ' + timeElapsed + 'seconds \n'
             );
+          }
+          if (options.json) {
+            console.log(transformResults);
           }
           if (usedRemoteScript) {
             temp.cleanupSync();

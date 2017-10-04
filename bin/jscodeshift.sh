@@ -72,6 +72,11 @@ const opts = require('nomnom')
       help: 'Ignore files if they match patterns sourced from a configuration file (e.g., a .gitignore)',
       metavar: 'FILE'
     },
+    json: {
+      abbr: 'j',
+      flag: true,
+      help: 'Gather transform results to json [{file, out}] and print it',
+    },
     runInBand: {
       flag: true,
       default: false,
