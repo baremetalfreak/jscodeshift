@@ -28,16 +28,16 @@ function lineBreak(str) {
 
 const log = {
   ok(msg, verbose) {
-    verbose >= 2 && process.stdout.write(colors.white.bgGreen(' OKK ') + msg);
+    verbose >= 2 && process.stderr.write(colors.white.bgGreen(' OKK ') + msg);
   },
   nochange(msg, verbose) {
-    verbose >= 1 && process.stdout.write(colors.white.bgYellow(' NOC ') + msg);
+    verbose >= 1 && process.stderr.write(colors.white.bgYellow(' NOC ') + msg);
   },
   skip(msg, verbose) {
-    verbose >= 1 && process.stdout.write(colors.white.bgYellow(' SKIP ') + msg);
+    verbose >= 1 && process.stderr.write(colors.white.bgYellow(' SKIP ') + msg);
   },
   error(msg, verbose) {
-    verbose >= 0 && process.stdout.write(colors.white.bgRed(' ERR ') + msg);
+    verbose >= 0 && process.stderr.write(colors.white.bgRed(' ERR ') + msg);
   },
 };
 
@@ -49,7 +49,7 @@ function concatAll(arrays) {
 }
 
 function showFileStats(fileStats) {
-  process.stdout.write(
+  process.stderr.write(
     'Results: \n'+
     colors.red(fileStats.error + ' errors\n')+
     colors.yellow(fileStats.nochange + ' unmodified\n')+
@@ -61,9 +61,9 @@ function showFileStats(fileStats) {
 function showStats(stats) {
   const names = Object.keys(stats).sort();
   if (names.length) {
-    process.stdout.write(colors.blue('Stats: \n'));
+    process.stderr.write(colors.blue('Stats: \n'));
   }
-  names.forEach(name => process.stdout.write(name + ': ' + stats[name] + '\n'));
+  names.forEach(name => process.stderr.write(name + ': ' + stats[name] + '\n'));
 }
 
 function dirFiles (dir, callback, acc) {
@@ -88,7 +88,7 @@ function dirFiles (dir, callback, acc) {
       fs.stat(name, (err, stats) => {
         if (err) {
           // probably a symlink issue
-          process.stdout.write(
+          process.stderr.write(
             'Skipping path "' + name + '" which does not exist.\n'
           );
           done();
@@ -187,7 +187,7 @@ function run(transformFile, paths, options) {
         const numFiles = files.length;
 
         if (numFiles === 0) {
-          process.stdout.write('No files selected, nothing to do. \n');
+          process.stderr.write('No files selected, nothing to do. \n');
           return;
         }
 
@@ -200,7 +200,7 @@ function run(transformFile, paths, options) {
         // return the next chunk of work for a free worker
         function next() {
           if (!options.silent && !options.runInBand && index < numFiles) {
-            process.stdout.write(
+            process.stderr.write(
               'Sending ' +
               Math.min(chunkSize, numFiles-index) +
               ' files to free worker...\n'
@@ -210,14 +210,14 @@ function run(transformFile, paths, options) {
         }
 
         if (!options.silent) {
-          process.stdout.write('Processing ' + files.length + ' files... \n');
+          process.stderr.write('Processing ' + files.length + ' files... \n');
           if (!options.runInBand) {
-            process.stdout.write(
+            process.stderr.write(
               'Spawning ' + processes +' workers...\n'
             );
           }
           if (options.dry) {
-            process.stdout.write(
+            process.stderr.write(
               colors.green('Running in dry mode, no files will be written! \n')
             );
           }
@@ -260,10 +260,10 @@ function run(transformFile, paths, options) {
           const endTime = process.hrtime(startTime);
           const timeElapsed = (endTime[0] + endTime[1]/1e9).toFixed(3);
           if (!options.silent) {
-            process.stdout.write('All done. \n');
+            process.stderr.write('All done. \n');
             showFileStats(fileCounters);
             showStats(statsCounter);
-            process.stdout.write(
+            process.stderr.write(
               'Time elapsed: ' + timeElapsed + 'seconds \n'
             );
           }
