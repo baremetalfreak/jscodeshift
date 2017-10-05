@@ -272,7 +272,11 @@ function run(transformFile, paths, options) {
             );
           }
           if (options.json) {
-            console.log(transformResults);
+            if (process.stdout.isTTY) {
+              console.log(transformResults);
+            } else {
+              process.stdout.write(JSON.stringify(transformResults));
+            }
           }
           if (usedRemoteScript) {
             temp.cleanupSync();
